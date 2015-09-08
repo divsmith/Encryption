@@ -62,20 +62,20 @@ int main()
 	// Prompt for encryption or decryption
 	int selection = getOperationSelection();
 
-
-	if (selection == 1)
+	while (selection == 1 || selection == 2)
 	{
-		encryptFile();
-	}
-	else if (selection == 2)
-	{
-		decryptFile();
-	}
+		if (selection == 1)
+		{
+			encryptFile();
+		}
+		else if (selection == 2)
+		{
+			decryptFile();
+		}
 
-	string stuff;
-	cout << "Press enter to exit.";
-	cin >> stuff;
-
+		selection = getOperationSelection();
+	}
+	
 	return 0;
 }
 
@@ -83,14 +83,12 @@ int getOperationSelection()
 {
 	int selection = 0;
 
-	while (selection != 1 && selection != 2)
-	{
-		cout << "Please select an option:" << endl;
-		cout << "1. Encrypt file." << endl;
-		cout << "2. Decrypt file." << endl;
+	cout << "Please select an option:" << endl;
+	cout << "1. Encrypt file." << endl;
+	cout << "2. Decrypt file." << endl;
+	cout << endl << "Press any other key to exit." << endl;
 
-		cin >> selection;
-	}
+	cin >> selection;
 
 	return selection;
 }
