@@ -192,14 +192,6 @@ string encrypt(string plainString, byte* iv, SecByteBlock key)
 			)
 		);
 
-	/*
-	// Encode ciphertext to hex.
-	StringSource ss2(cipherString, true,
-		new HexEncoder(
-			new StringSink(encoded)
-			)
-		);
-	*/
 	return cipherString;
 }
 
@@ -233,16 +225,6 @@ void decryptFile()
 	{
 		iv[x] = ivString[x];
 	}
-
-	//cipherFile.read((char*)iv, sizeof(iv));
-
-	//while (!cipherFile.eof())
-	//{
-		//cipherFile.read(&cipherChar, sizeof(cipherChar));
-		//cipherString.append(&cipherChar);
-	//}
-
-	//cipherFile >> cipherString;
 	
 	// Break ciphertext into frames
 	int frameBytes = 16;
@@ -276,7 +258,7 @@ void decryptFile()
 	
 	// Decrypt first frame
 	string plainString = decrypt(frameStrings[0], iv, key);
-	//string plainString = decrypt(cipherString, iv, key);
+
 	// Write first frame to plain file.
 	plainFile << plainString;
 
@@ -309,14 +291,6 @@ string decrypt(string cipherString, byte* iv, SecByteBlock key)
 	CFB_Mode<AES>::Decryption d;
 	d.SetKeyWithIV(key, key.size(), iv);
 
-	/*
-	// Decode cipherstring from hex to binary.
-	StringSource ss2(cipherString, true,
-		new HexDecoder(
-			new StringSink(decoded)
-			)
-		);
-	*/
 	// Decrypt from binary to plaintext.
 	StringSource ss3(cipherString, true,
 		new StreamTransformationFilter(d,
