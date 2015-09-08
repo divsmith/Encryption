@@ -113,7 +113,7 @@ void encryptFile()
 	// Load plaintext file into memory.
 	string plainString((istreambuf_iterator<char>(plainFile)), istreambuf_iterator<char>());
 	
-	/*
+	
 	// Break plaintext into frames
 	int frameBytes = 16;
 	const int maxFrames = 100;
@@ -126,7 +126,6 @@ void encryptFile()
 	}
 
 	string* frameStrings;
-
 	frameStrings = new string[frameCount];
 
 	// Load all frames except for last.
@@ -137,9 +136,8 @@ void encryptFile()
 
 	// Load the last (potentially partial) frame
 	frameStrings[frameCount - 1] = plainString.substr((frameCount - 1) * frameBytes);
-	*/
+	
 	// Create random IV
-
 	AutoSeededRandomPool prng;
 	byte iv[AES::BLOCKSIZE];
 	prng.GenerateBlock(iv, sizeof(iv));
@@ -153,14 +151,12 @@ void encryptFile()
 	kdf.DeriveKey(key.data(), key.size(), purpose, (byte*)keyString.data(), keyString.size(), NULL, 0, iterations);
 
 	// Encrypt first frame
-	//string cipherString = encrypt(frameStrings[0], iv, key);
-	string cipherString = encrypt(plainString, iv, key);
+	string cipherString = encrypt(frameStrings[0], iv, key);
 
 	// Write random IV and first frame to cipher file.
 	cipherFile.write((char*)iv, sizeof(iv));
 	cipherFile << cipherString;
 
-	/*
 	// Encrypt and write all additional frames.
 	for (int x = 1; x < frameCount; x++)
 	{
@@ -175,7 +171,7 @@ void encryptFile()
 		// Write encrypted string to cipher file.
 		cipherFile << cipherString;
 	}
-	*/
+
 	// Close filestreams.
 	plainFile.close();
 	cipherFile.close();
@@ -247,20 +243,18 @@ void decryptFile()
 	//}
 
 	//cipherFile >> cipherString;
-	/*
+	
 	// Break ciphertext into frames
-	int frameBytes = 32;
+	int frameBytes = 16;
 	const int maxFrames = 100;
 	int frameCount = cipherString.length() / frameBytes + 1;
 
 	if (frameCount > maxFrames)
 	{
 		frameBytes = cipherString.length() / maxFrames;
-		frameBytes = frameBytes - 1;
 		frameCount = cipherString.length() / frameBytes + 1;
 	}
 	string* frameStrings;
-
 	frameStrings = new string[frameCount];
 
 	// Load all frames except for last.
@@ -271,7 +265,7 @@ void decryptFile()
 
 	// Load the last (potentially partial) frame
 	frameStrings[frameCount - 1] = cipherString.substr((frameCount - 1) * frameBytes);
-	*/
+	
 	// Create Key
 	unsigned int iterations = 15000;
 	string keyString = hashStrings(userId, deviceId);
@@ -281,12 +275,12 @@ void decryptFile()
 	kdf.DeriveKey(key.data(), key.size(), purpose, (byte*)keyString.data(), keyString.size(), NULL, 0, iterations);
 	
 	// Decrypt first frame
-	//string plainString = decrypt(frameStrings[0], iv, key);
-	string plainString = decrypt(cipherString, iv, key);
+	string plainString = decrypt(frameStrings[0], iv, key);
+	//string plainString = decrypt(cipherString, iv, key);
 	// Write first frame to plain file.
 	plainFile << plainString;
 
-	/*
+	
 	// Decrypt and write all additional frames.
 	for (int x = 1; x < frameCount; x++)
 	{
@@ -300,7 +294,7 @@ void decryptFile()
 
 		// Write encrypted string to cipher file.
 		plainFile << plainString;
-	}*/
+	}
 
 	// Close filestreams.
 	cipherFile.close();
