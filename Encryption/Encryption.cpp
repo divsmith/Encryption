@@ -108,11 +108,12 @@ void encryptFile()
 	string deviceId = getDeviceId();
 	
 	// get user id
-	string userId = getUserId();
-
+	//string userId = getUserId();
+	string userId = "1234";
 	// Load plaintext file into memory.
 	string plainString((istreambuf_iterator<char>(plainFile)), istreambuf_iterator<char>());
 	
+	/*
 	// Break plaintext into frames
 	int frameBytes = 16;
 	const int maxFrames = 100;
@@ -136,7 +137,7 @@ void encryptFile()
 
 	// Load the last (potentially partial) frame
 	frameStrings[frameCount - 1] = plainString.substr((frameCount - 1) * frameBytes);
-
+	*/
 	// Create random IV
 
 	AutoSeededRandomPool prng;
@@ -152,12 +153,14 @@ void encryptFile()
 	kdf.DeriveKey(key.data(), key.size(), purpose, (byte*)keyString.data(), keyString.size(), NULL, 0, iterations);
 
 	// Encrypt first frame
-	string cipherString = encrypt(frameStrings[0], iv, key);
+	//string cipherString = encrypt(frameStrings[0], iv, key);
+	string cipherString = encrypt(plainString, iv, key);
 
 	// Write random IV and first frame to cipher file.
 	cipherFile.write((char*)iv, sizeof(iv));
 	cipherFile << cipherString;
 
+	/*
 	// Encrypt and write all additional frames.
 	for (int x = 1; x < frameCount; x++)
 	{
@@ -172,7 +175,7 @@ void encryptFile()
 		// Write encrypted string to cipher file.
 		cipherFile << cipherString;
 	}
-
+	*/
 	// Close filestreams.
 	plainFile.close();
 	cipherFile.close();
@@ -193,14 +196,15 @@ string encrypt(string plainString, byte* iv, SecByteBlock key)
 			)
 		);
 
+	/*
 	// Encode ciphertext to hex.
 	StringSource ss2(cipherString, true,
 		new HexEncoder(
 			new StringSink(encoded)
 			)
 		);
-
-	return encoded;
+	*/
+	return cipherString;
 }
 
 void decryptFile()
@@ -218,15 +222,32 @@ void decryptFile()
 	string deviceId = getDeviceId();
 
 	// Get userId
-	string userId = getUserId();
-
+	//string userId = getUserId();
+	string userId = "1234";
 	// Read random IV and ciphertext from file.
 	byte iv[AES::BLOCKSIZE];
-	string cipherString;
+	//string cipherString;
+	string cipherString((istreambuf_iterator<char>(cipherFile)), istreambuf_iterator<char>());
+	string ivString;
 
-	cipherFile.read((char*)iv, sizeof(iv));
-	cipherFile >> cipherString;
+	ivString = cipherString.substr(0, sizeof(iv));
+	cipherString = cipherString.substr(sizeof(iv), cipherString.length());
 
+	for (int x = 0; x < ivString.length(); x++)
+	{
+		iv[x] = ivString[x];
+	}
+
+	//cipherFile.read((char*)iv, sizeof(iv));
+
+	//while (!cipherFile.eof())
+	//{
+		//cipherFile.read(&cipherChar, sizeof(cipherChar));
+		//cipherString.append(&cipherChar);
+	//}
+
+	//cipherFile >> cipherString;
+	/*
 	// Break ciphertext into frames
 	int frameBytes = 32;
 	const int maxFrames = 100;
@@ -250,7 +271,7 @@ void decryptFile()
 
 	// Load the last (potentially partial) frame
 	frameStrings[frameCount - 1] = cipherString.substr((frameCount - 1) * frameBytes);
-
+	*/
 	// Create Key
 	unsigned int iterations = 15000;
 	string keyString = hashStrings(userId, deviceId);
@@ -258,13 +279,14 @@ void decryptFile()
 	SecByteBlock key(AES::DEFAULT_KEYLENGTH);
 	PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> kdf;
 	kdf.DeriveKey(key.data(), key.size(), purpose, (byte*)keyString.data(), keyString.size(), NULL, 0, iterations);
-
+	
 	// Decrypt first frame
-	string plainString = decrypt(frameStrings[0], iv, key);
-
+	//string plainString = decrypt(frameStrings[0], iv, key);
+	string plainString = decrypt(cipherString, iv, key);
 	// Write first frame to plain file.
 	plainFile << plainString;
 
+	/*
 	// Decrypt and write all additional frames.
 	for (int x = 1; x < frameCount; x++)
 	{
@@ -278,7 +300,7 @@ void decryptFile()
 
 		// Write encrypted string to cipher file.
 		plainFile << plainString;
-	}
+	}*/
 
 	// Close filestreams.
 	cipherFile.close();
@@ -293,15 +315,16 @@ string decrypt(string cipherString, byte* iv, SecByteBlock key)
 	CFB_Mode<AES>::Decryption d;
 	d.SetKeyWithIV(key, key.size(), iv);
 
+	/*
 	// Decode cipherstring from hex to binary.
 	StringSource ss2(cipherString, true,
 		new HexDecoder(
 			new StringSink(decoded)
 			)
 		);
-
+	*/
 	// Decrypt from binary to plaintext.
-	StringSource ss3(decoded, true,
+	StringSource ss3(cipherString, true,
 		new StreamTransformationFilter(d,
 			new StringSink(plainString)
 			)
