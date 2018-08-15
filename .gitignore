@@ -1,2 +1,5 @@
 Debug/
-Encryption.opensdf
+ipch/
+Release/
+Encryption/Debug/
+Encryption/Release/
