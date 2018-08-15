@@ -108,8 +108,8 @@ void encryptFile()
 	string deviceId = getDeviceId();
 	
 	// get user id
-	//string userId = getUserId();
-	string userId = "1234";
+	string userId = getUserId();
+
 	// Load plaintext file into memory.
 	string plainString((istreambuf_iterator<char>(plainFile)), istreambuf_iterator<char>());
 	
@@ -149,7 +149,7 @@ void encryptFile()
 	SecByteBlock key(AES::DEFAULT_KEYLENGTH);
 	PKCS5_PBKDF2_HMAC<CryptoPP::SHA256> kdf;
 	kdf.DeriveKey(key.data(), key.size(), purpose, (byte*)keyString.data(), keyString.size(), NULL, 0, iterations);
-
+	
 	// Encrypt first frame
 	string cipherString = encrypt(frameStrings[0], iv, key);
 
@@ -164,7 +164,7 @@ void encryptFile()
 		string newKey = hashStrings(cipherString, keyString);
 		key.CleanNew(AES::DEFAULT_KEYLENGTH);
 		kdf.DeriveKey(key.data(), key.size(), purpose, (byte*)newKey.data(), newKey.size(), NULL, 0, iterations);
-
+		
 		// Encrypt the frame with the new key
 		cipherString = encrypt(frameStrings[x], iv, key);
 		
@@ -210,8 +210,8 @@ void decryptFile()
 	string deviceId = getDeviceId();
 
 	// Get userId
-	//string userId = getUserId();
-	string userId = "1234";
+	string userId = getUserId();
+	
 	// Read random IV and ciphertext from file.
 	byte iv[AES::BLOCKSIZE];
 	//string cipherString;

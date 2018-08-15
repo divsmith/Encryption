@@ -1,1 +1,1 @@
-this is a test. it should be encrypted then decrypted.
+this is a test. it is plaintext and should be encrypted and then decrypted.
